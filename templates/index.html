@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Digit Car Number Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .card-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .section-title {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+            display: inline-block;
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .number-item {
+            background: #667eea;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .dynamic-inputs {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h1 class="mb-0"><i class="fas fa-car"></i> 4-Digit Car Number Generator</h1>
+                        <p class="mb-0 mt-2">Generate custom 4-digit car numbers based on your criteria</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="numberForm">
+                            <!-- Specific Digits Section -->
+                            <div class="mb-4">
+                                <h5 class="section-title"><i class="fas fa-hashtag text-primary"></i> Specific Digits</h5>
+                                <p class="text-muted small">Specify which digits should appear and how many times</p>
+                                <div class="dynamic-inputs" id="specificDigitsContainer">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Digit</span>
+                                        <select class="form-select" name="specific_digit">
+                                            <option value="">Select digit</option>
+                                            <option value="0">0</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                        </select>
+                                        <span class="input-group-text">Count</span>
+                                        <select class="form-select" name="specific_count">
+                                            <option value="">Select count</option>
+                                            <option value="1">1 time</option>
+                                            <option value="2">2 times</option>
+                                            <option value="3">3 times</option>
+                                            <option value="4">4 times</option>
+                                        </select>
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeSpecificDigit(this)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSpecificDigit()">
+                                    <i class="fas fa-plus"></i> Add Specific Digit Rule
+                                </button>
+                            </div>
+
+                            <!-- Position Digits Section -->
+                            <div class="mb-4">
+                                <h5 class="section-title"><i class="fas fa-map-marker-alt text-warning"></i> Position-Specific Digits</h5>
+                                <p class="text-muted small">Set specific digits at specific positions (1=first, 4=last)</p>
+                                <div class="dynamic-inputs" id="positionDigitsContainer">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Position</span>
+                                        <select class="form-select" name="position">
+                                            <option value="">Select position</option>
+                                            <option value="1">1 (First)</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4 (Last)</option>
+                                        </select>
+                                        <span class="input-group-text">Digit</span>
+                                        <select class="form-select" name="position_digit">
+                                            <option value="">Select digit</option>
+                                            <option value="0">0</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                        </select>
+                                        <button type="button" class="btn btn-outline-danger" onclick="removePositionDigit(this)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-warning btn-sm" onclick="addPositionDigit()">
+                                    <i class="fas fa-plus"></i> Add Position Rule
+                                </button>
+                            </div>
+
+                            <!-- Desired Sum Section -->
+                            <div class="mb-4">
+                                <h5 class="section-title"><i class="fas fa-calculator text-success"></i> Desired Sum</h5>
+                                <p class="text-muted small">Enter a number from 1-9. Will find all numbers where sum of digits % 9 equals your input.</p>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="desiredSum" class="form-label">Desired Sum (1-9):</label>
+                                        <input type="number" class="form-control" id="desiredSum" name="desired_sum" min="1" max="9" placeholder="e.g., 3">
+                                        <small class="text-muted">Example: 3 will find sums 3, 12, 21, 30</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <div class="text-center mb-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-magic"></i> Generate Car Numbers
+                                </button>
+                                <div class="loading mt-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Generating numbers...</p>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Results Section -->
+                        <div id="results" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-check-circle"></i> Generation Complete!</h5>
+                                <p class="mb-2">Found <strong id="resultCount">0</strong> numbers matching your criteria.</p>
+                                <a href="#" id="downloadLink" class="btn btn-success">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </a>
+                            </div>
+                            
+                            <div class="preview-box">
+                                <h6><i class="fas fa-eye"></i> Preview (First 20 numbers):</h6>
+                                <div id="previewNumbers" class="number-grid"></div>
+                            </div>
+                        </div>
+
+                        <!-- Error Section -->
+                        <div id="error" style="display: none;" class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Error</h5>
+                            <p id="errorMessage"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dynamic input functions
+        function addSpecificDigit() {
+            const container = document.getElementById('specificDigitsContainer');
+            const newInput = container.firstElementChild.cloneNode(true);
+            newInput.querySelectorAll('select').forEach(select => select.value = '');
+            container.appendChild(newInput);
+        }
+
+        function removeSpecificDigit(button) {
+            const container = document.getElementById('specificDigitsContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function addPositionDigit() {
+            const container = document.getElementById('positionDigitsContainer');
+            const newInput = container.firstElementChild.cloneNode(true);
+            newInput.querySelectorAll('select').forEach(select => select.value = '');
+            container.appendChild(newInput);
+        }
+
+        function removePositionDigit(button) {
+            const container = document.getElementById('positionDigitsContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        // Form submission
+        document.getElementById('numberForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.querySelector('.loading');
+            const results = document.getElementById('results');
+            const error = document.getElementById('error');
+            
+            // Show loading, hide results/error
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            error.style.display = 'none';
+            
+            // Collect form data (simplified)
+            const formData = {
+                specific_digits: [],
+                position_digits: [],
+                desired_sum: document.getElementById('desiredSum').value
+            };
+            
+            // Collect specific digits
+            document.querySelectorAll('#specificDigitsContainer .input-group').forEach(group => {
+                const digit = group.querySelector('select[name="specific_digit"]').value;
+                const count = group.querySelector('select[name="specific_count"]').value;
+                if (digit && count) {
+                    formData.specific_digits.push({digit: digit, count: count});
+                }
+            });
+            
+            // Collect position digits
+            document.querySelectorAll('#positionDigitsContainer .input-group').forEach(group => {
+                const position = group.querySelector('select[name="position"]').value;
+                const digit = group.querySelector('select[name="position_digit"]').value;
+                if (position && digit) {
+                    formData.position_digits.push({position: position, digit: digit});
+                }
+            });
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    // Show results
+                    document.getElementById('resultCount').textContent = data.count;
+                    document.getElementById('downloadLink').href = data.pdf_url;
+                    
+                    // Show preview
+                    const previewContainer = document.getElementById('previewNumbers');
+                    previewContainer.innerHTML = '';
+                    data.preview.forEach(number => {
+                        const numberDiv = document.createElement('div');
+                        numberDiv.className = 'number-item';
+                        numberDiv.textContent = number;
+                        previewContainer.appendChild(numberDiv);
+                    });
+                    
+                    results.style.display = 'block';
+                } else {
+                    // Show error
+                    document.getElementById('errorMessage').textContent = data.error;
+                    error.style.display = 'block';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                document.getElementById('errorMessage').textContent = 'Network error: ' + err.message;
+                error.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
