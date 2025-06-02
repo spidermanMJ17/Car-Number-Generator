@@ -214,12 +214,16 @@
                             <!-- Desired Sum Section -->
                             <div class="mb-4">
                                 <h5 class="section-title"><i class="fas fa-calculator text-success"></i> Desired Sum</h5>
-                                <p class="text-muted small">Enter a number from 1-9. Will find all numbers where sum of digits % 9 equals your input.</p>
+                                <p class="text-muted small">
+                                    Enter one or more numbers from 1-36, separated by commas.<br>
+                                    Will find all numbers where the sum of digits equals any of your inputs.<br>
+                                    <strong>Example:</strong> 9,18,27 will find numbers whose digits sum to 9, 18, or 27.
+                                </p>
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="desiredSum" class="form-label">Desired Sum (1-9):</label>
-                                        <input type="number" class="form-control" id="desiredSum" name="desired_sum" min="1" max="9" placeholder="e.g., 3">
-                                        <small class="text-muted">Example: 3 will find sums 3, 12, 21, 30</small>
+                                    <div class="col-md-6">
+                                        <label for="desiredSum" class="form-label">Desired Sum(s):</label>
+                                        <input type="text" class="form-control" id="desiredSum" name="desired_sum" placeholder="e.g., 9,18,27">
+                                        <small class="text-muted">Separate multiple sums with commas.</small>
                                     </div>
                                 </div>
                             </div>
@@ -313,7 +317,7 @@
             const formData = {
                 specific_digits: [],
                 position_digits: [],
-                desired_sum: document.getElementById('desiredSum').value
+                desired_sum: document.getElementById('desiredSum').value // Now a string, possibly comma-separated
             };
             
             // Collect specific digits

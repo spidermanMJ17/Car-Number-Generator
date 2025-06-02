@@ -10,22 +10,21 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-def generate_car_numbers(specific_digits=None, position_digits=None, modulo_x=None):
+def generate_car_numbers(specific_digits=None, position_digits=None, sum_values=None):
     """
     Generate 4-digit car numbers based on custom rules
-    
+
     Args:
         specific_digits: Dict with digit as key and count as value
         position_digits: Dict with position (1-4) as key and digit as value
-        modulo_x: X value where sum % 9 == X
+        sum_values: List of allowed digit sums
     """
     valid_numbers = []
-    
+
     for num in range(10000):  # 0000 to 9999
-        # Convert to 4-digit string
         num_str = f"{num:04d}"
         digits = [int(d) for d in num_str]
-        
+
         # Check specific digits
         if specific_digits:
             valid = True
@@ -35,26 +34,25 @@ def generate_car_numbers(specific_digits=None, position_digits=None, modulo_x=No
                     break
             if not valid:
                 continue
-        
+
         # Check position-specific digits
         if position_digits:
             valid = True
             for position, required_digit in position_digits.items():
-                # Position is 1-indexed, convert to 0-indexed
                 if digits[position - 1] != required_digit:
                     valid = False
                     break
             if not valid:
                 continue
-        
-        # Check sum condition (simplified - only modulo)
-        if modulo_x is not None:
+
+        # Check sum condition (now supports multiple sums)
+        if sum_values is not None and len(sum_values) > 0:
             digit_sum = sum(digits)
-            if digit_sum % 9 != modulo_x:
+            if digit_sum not in sum_values:
                 continue
-        
+
         valid_numbers.append(num_str)
-    
+
     return valid_numbers
 
 def create_pdf(numbers, criteria):
@@ -143,37 +141,38 @@ def index():
 def generate():
     try:
         data = request.get_json()
-        
-        # Parse input data (removed zero_count as it's handled in specific_digits)
-        
+
         # Parse specific digits
         specific_digits = {}
         if data.get('specific_digits'):
             for item in data['specific_digits']:
                 if item['digit'] != '' and item['count'] != '':
                     specific_digits[int(item['digit'])] = int(item['count'])
-        
+
         # Parse position digits
         position_digits = {}
         if data.get('position_digits'):
             for item in data['position_digits']:
                 if item['position'] != '' and item['digit'] != '':
                     position_digits[int(item['position'])] = int(item['digit'])
-        
-        # Parse sum condition - simplified to just desired sum (1-9)
-        modulo_x = None
-        desired_sum = data.get('desired_sum')
-        if desired_sum and desired_sum != '':
-            modulo_x = int(desired_sum) % 9
-        
-        # Generate numbers (removed zero_count parameter)
+
+        # Parse sum values (allow multiple, comma-separated)
+        sum_values = []
+        sum_input = data.get('desired_sum')
+        if sum_input and sum_input != '':
+            if isinstance(sum_input, str):
+                sum_values = [int(s.strip()) for s in sum_input.split(',') if s.strip().isdigit()]
+            elif isinstance(sum_input, list):
+                sum_values = [int(s) for s in sum_input if str(s).isdigit()]
+
+        # Generate numbers
         numbers = generate_car_numbers(
             specific_digits=specific_digits if specific_digits else None,
             position_digits=position_digits if position_digits else None,
-            modulo_x=modulo_x
+            sum_values=sum_values if sum_values else None
         )
-        
-        # Create criteria list for PDF (removed zero_count, simplified sum)
+
+        # Create criteria list for PDF
         criteria = []
         if specific_digits:
             for digit, count in specific_digits.items():
@@ -181,9 +180,9 @@ def generate():
         if position_digits:
             for pos, digit in position_digits.items():
                 criteria.append(f"Position {pos} has digit {digit}")
-        if modulo_x is not None:
-            criteria.append(f"Sum of digits % 9 = {modulo_x} (includes sums: {', '.join([str(i) for i in range(modulo_x, 37, 9) if i <= 36])})")
-        
+        if sum_values:
+            criteria.append(f"Sum of digits in {', '.join(map(str, sum_values))}")
+
         # Create PDF
         pdf_buffer = create_pdf(numbers, criteria)
         
